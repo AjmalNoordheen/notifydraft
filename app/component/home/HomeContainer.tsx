@@ -6,6 +6,7 @@ import { BellIcon } from "../icons/BellIcon";
 import { ShieldIcon } from "../icons/ShielIcon";
 import { DocLogo } from "../elements/DocLogo";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const HomeContainer = () => {
   const router = useRouter();
@@ -14,9 +15,14 @@ const HomeContainer = () => {
       {/* Header */}
       <header className="border-b border-border">
         <div className="flex h-16 items-center justify-between py-4 px-8">
-          <div className="flex items-center gap-2">
-            <DocLogo height={12} width={12} />
-            <span className="text-lg font-semibold text-foreground">
+          <div className="flex items-center relative">
+            <Image
+              src="/notiLogo.png"
+              alt="DocuTrack Logo"  
+              width={180}
+              height={80}
+            />
+            <span className="text-lg font-semibold absolute -right-7 text-foreground">
               DocuTrack
             </span>
           </div>
