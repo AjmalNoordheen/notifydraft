@@ -5,7 +5,7 @@ const UserSchema = new Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
+      lowercase: true
     },
     password: {
       type: String,
@@ -14,6 +14,11 @@ const UserSchema = new Schema(
     centerName: {
       type: String,
       required: true, 
+    },
+    userRole: {
+      type: String,
+      enum: ["super_admin", "admin", "user"],
+      default: "user",
     },
   },
   { timestamps: true }
