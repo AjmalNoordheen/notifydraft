@@ -11,6 +11,7 @@ export const getUsers = async () => {
 export const createUser = async (req: NextRequest) => {
   await connectDB();
   const data = await req.json();
+  if (!data.phone) return NextResponse.json({ error: "Phone is required" }, { status: 400 });
   if (await userService.findUserByEmail(data.email)) return NextResponse.json({ error: "User already exists" }, { status: 409 });
   const user = await userService.createUser(data);
   return NextResponse.json({message:"User created successfully", user}, { status: 201 });

@@ -19,7 +19,7 @@ export const getUserById = async (id: string) => {
 };
 
 export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string) => {
-  const query: any = search ? { $or: [{ name: new RegExp(search, 'i') }, { email: new RegExp(search, 'i') }] } : {};
+  const query: any = search ? { $or: [{ name: new RegExp(search, 'i') }, { email: new RegExp(search, 'i') }, { phone: new RegExp(search, 'i') }] } : {};
   if (role) query.userRole = role;
   const users = await User.find(query).select("-password").skip((page - 1) * limit).limit(limit);
   const total = await User.countDocuments(query);
