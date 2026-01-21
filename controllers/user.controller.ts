@@ -22,7 +22,7 @@ export const getUserById = async (id: string) => {
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
-  return NextResponse.json(user);
+  return NextResponse.json({user, message: "User fetched successfully"});
 };
 
 export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string) => {

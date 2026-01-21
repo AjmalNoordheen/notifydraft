@@ -7,6 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = authenticateRequest(req);
+  
   if (!auth.authenticated) return auth.error;
   const { id } = await params;
   return userController.getUserById(id);
