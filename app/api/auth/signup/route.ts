@@ -1,8 +1,7 @@
 import { connectDB } from "@/lib/db";
-import { User } from "@/model/user";
-import bcrypt from "bcryptjs";
+import { findUserByEmail, createUser } from "@/services/user.service";
+import { signToken } from "@/lib/jwt";
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +15,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
 
     if (user) {
       return NextResponse.json(
@@ -32,19 +31,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-      centerName,
-    });
-    await newUser.save();
+    const newUser = await createUser({ email, password, centerName });
 
-    const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+    const token = signToken({ userId: newUser._id, email: newUser.email, role: newUser.userRole });
+
     const response = NextResponse.json({
       message: "Account created successfully",
       user: {
@@ -59,7 +49,7 @@ export async function POST(req: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
     return response;
   } catch (error) {

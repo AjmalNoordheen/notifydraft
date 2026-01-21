@@ -1,12 +1,12 @@
 import { connectDB } from "@/lib/db";
-import { User } from "@/model/user";
-import bcrypt from "bcryptjs";
+import { findUserByEmail } from "@/services/user.service";
+import { comparePassword } from "@/lib/bcrypt";
+import { signToken } from "@/lib/jwt";
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
-    await connectDB(); // ✅ CALL HERE
+    await connectDB();
     const { email, password } = await req.json();
 
     if (!email || !password) {
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
 
     if (!user) {
       return NextResponse.json(
@@ -24,7 +24,8 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    const isPasswordValid = await comparePassword(password, user.password);
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -32,16 +33,15 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" }
-    );
+
+    const token = signToken({ userId: user._id, email: user.email, role: user.userRole });
+
     const response = NextResponse.json({
       message: "Login successful",
       user: {
         id: user._id,
         email: user.email,
+        role: user.userRole,
       },
     });
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
     return response;
   } catch (error) {
