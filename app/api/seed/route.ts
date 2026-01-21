@@ -1,6 +1,6 @@
 // app/api/seed/route.ts
 import { connectDB } from "@/lib/db";
-import { User } from "@/model/user";
+import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { use } from "react";
@@ -21,8 +21,7 @@ export async function GET() {
     email: process.env.ADMIN_SIGNUP_EMAIL,
     password: hashed,
     centerName: "Main Center",
-    userRole: "super_admin",
-    phone: "0000000000",
+    userRole: "super_admin"
   });
 
   return NextResponse.json({ message: "User created" });
