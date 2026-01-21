@@ -21,7 +21,8 @@ export async function GET() {
     email: process.env.ADMIN_SIGNUP_EMAIL,
     password: hashed,
     centerName: "Main Center",
-    userRole: "super_admin"
+    userRole: "super_admin",
+    phone: "0000000000",
   });
 
   return NextResponse.json({ message: "User created" });
