@@ -12,7 +12,7 @@ const inter = Inter({
 
 
 export const metadata: Metadata = {
-  title: "NotiDraft",
+  title: "NotiDraft - Document Expiry Tracker for UAE Typing Centers",
   description: "UAE-Based Document Tracking & Automated Reminder Platform",
   icons:{
     icon: [{ url: "/notiLogo.png", type: "image/png" , sizes: "192x192"}],
