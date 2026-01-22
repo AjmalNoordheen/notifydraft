@@ -17,6 +17,15 @@ export const createUser = async (req: NextRequest) => {
   return NextResponse.json({message:"User created successfully", user}, { status: 201 });
 };
 
+export const createUserByAdmin = async (adminId: string, req: NextRequest) => {
+  await connectDB();
+  const data = await req.json();
+  if (!data.phone) return NextResponse.json({ error: "Phone is required" }, { status: 400 });
+  if (await userService.findUserByEmail(data.email)) return NextResponse.json({ error: "User already exists" }, { status: 409 });
+  const user = await userService.createUser({ ...data, adminId });
+  return NextResponse.json({message:"User created successfully", user}, { status: 201 });
+};
+
 export const getUserById = async (id: string) => {
   await connectDB();
   const user = await userService.getUserById(id);
@@ -26,9 +35,9 @@ export const getUserById = async (id: string) => {
   return NextResponse.json({user, message: "User fetched successfully"});
 };
 
-export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string) => {
+export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string, adminId?: string) => {
   await connectDB();
-  const result = await userService.getUsersWithPagination(page, limit, search, role);
+  const result = await userService.getUsersWithPagination(page, limit, search, role, adminId);
   return NextResponse.json(result);
 };
 

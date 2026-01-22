@@ -3,7 +3,6 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import { use } from "react";
 
 export async function GET() {
   await connectDB();

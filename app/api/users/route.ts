@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { authenticateRequest } from "@/lib/auth";
+import { authenticateRequest, authAdmin } from "@/lib/auth";
 import * as userController from "@/controllers/user.controller";
 
 export async function GET(req: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = authenticateRequest(req);
+  const auth = authAdmin(req);
   if (!auth.authenticated) return auth.error;
-  return userController.createUser(req);
+  return userController.createUserByAdmin(auth.user.userId, req);
 }

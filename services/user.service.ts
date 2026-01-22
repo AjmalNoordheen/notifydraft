@@ -1,5 +1,6 @@
 import { User } from "@/models/User";
 import { hashPassword } from "@/lib/bcrypt";
+import mongoose, { mongo } from "mongoose";
 
 export const createUser = async (data: any) => {
   const hashedPassword = await hashPassword(data.password);
@@ -18,9 +19,10 @@ export const getUserById = async (id: string) => {
   return await User.findById(id).select("-password");
 };
 
-export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string) => {
+export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string, adminId?: string) => {
   const query: any = search ? { $or: [{ name: new RegExp(search, 'i') }, { email: new RegExp(search, 'i') }, { phone: new RegExp(search, 'i') }] } : {};
   if (role) query.userRole = role;
+  if (adminId) query.adminId = new mongoose.Types.ObjectId(adminId);
   const users = await User.find(query).select("-password").skip((page - 1) * limit).limit(limit);
   const total = await User.countDocuments(query);
   return { users, total, page, totalPages: Math.ceil(total / limit) };
