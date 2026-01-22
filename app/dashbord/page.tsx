@@ -1,7 +1,10 @@
+import TypingCenterDashboard from "../component/ClientDashboard/CLDashboard"
 
 const UserDashbord = ()=> {
   return (
-    <div>UserDashbord</div>
+    <>
+    <TypingCenterDashboard/>
+    </>
   )
 }
 

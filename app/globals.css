@@ -5,25 +5,51 @@
   --foreground: #171717;
 }
 
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
 
-  @theme {
+@theme {
   --color-muted: hsl(220 14% 96%);
   --color-muted-foreground: hsl(220 10% 50%);
-/* Borders and inputs */
+  /* Borders and inputs */
   --color-border: hsl(220 13% 91%);
   --color-input: hsl(220 13% 91%);
   --color-ring: hsl(220 65% 45%);
   --color-primary-foreground: hsl(0 0% 100%);
+
+  --ring-gradient: linear-gradient(135deg, hsl(270 60% 55%), hsl(260 65% 40%));
+
+  --ring-gradient-hover: linear-gradient(
+    135deg,
+    hsl(270 60% 48%),
+    hsl(270 55% 34%)
+  );
 }
 
-
-
 @keyframes fileIconAnimation {
-  0% { transform: translateX(-80px); }
-  50% { transform: translateX(40px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-80px);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .fileIconAnimation {
   animation: fileIconAnimation 2s ease-in;
+}
+
+.animate-text-bg {
+  animation: textBackgroundAnimate 15s linear infinite;
+}
+
+@keyframes textBackgroundAnimate {
+  to {
+    background-position-x: -500px;
+  }
 }
