@@ -154,7 +154,7 @@ const MenuBar = ({ editor }: { editor: Editor }) => {
   );
 };
 
-const Tiptap = () => {
+const Tiptap = ({ content = "", onChange }: { content?: string; onChange?: (html: string) => void } = {}) => {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -181,8 +181,9 @@ const Tiptap = () => {
     ],
     onUpdate({ editor }) {
       console.log(editor.getHTML());
+      onChange?.(editor.getHTML());
     },
-    content: "",
+    content: content,
     immediatelyRender: false,
   });
 
