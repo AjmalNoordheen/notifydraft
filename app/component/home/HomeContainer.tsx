@@ -4,7 +4,6 @@ import { Button } from "../elements/Button";
 import { ClockIcon } from "../icons/ClockIcon";
 import { BellIcon } from "../icons/BellIcon";
 import { ShieldIcon } from "../icons/ShielIcon";
-import { DocLogo } from "../elements/DocLogo";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -18,7 +17,7 @@ const HomeContainer = () => {
           <div className="flex items-center relative">
             <Image
               src="/notiLogo.png"
-              alt="DocuTrack Logo"  
+              alt="DocuTrack Logo"
               width={180}
               height={80}
             />
@@ -28,13 +27,15 @@ const HomeContainer = () => {
           </div>
           <div className="flex items-center gap-3">
             <Button
+              variant="secondary"
               onClick={() => router.push("/login")}
               text="Sign In"
-              className="w-fit border-input bg-white font-medium text-sm  text-black hover:bg-slate-100 rounded-md p-2"
+              className="w-fit bg-white text-sm p-2"
             />
             <Button
               onClick={() => router.push("/login")}
-              className=" border-input text-white hover:bg-accent w-fit text-sm bg-ring hover:bg-blue-600 rounded-md p-2"
+              className=" w-fit text-sm  p-2"
+              variant="primary"
               text="Get Started"
             />
           </div>
@@ -44,14 +45,21 @@ const HomeContainer = () => {
       {/* Hero */}
       <section className="py-24 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-sm text-blue-700">
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-sm text-purple-700">
             <span>For UAE Typing Centers</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          <div className="text-4xl font-bold tracking-tight sm:text-5xl z-10">
             Never Miss a Document
             <br />
-            <span className="text-ring">Expiry Date Again</span>
-          </h1>
+            <div className="relative inline-block text-6xl font-extrabold px-4.5 py-1.5">
+              <span className="absolute inset-1 text-slate-400 [-webkit-text-stroke:1px_black]">
+                Expiry Date Again
+              </span>
+              <span className="relative bg-[url('/natur.jfif')] bg-cover animate-text-bg bg-clip-text text-transparent">
+                Expiry Date Again
+              </span>
+            </div>{" "}
+          </div>
           <p className="text-lg text-muted-foreground">
             DocuTrack helps UAE typing centers track visa, Emirates ID, trade
             license, and passport expiry dates. Get automated reminders and keep
@@ -60,13 +68,15 @@ const HomeContainer = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button
               onClick={() => router.push("/login")}
-              className="w-fit border-input bg-ring font- hover:bg-blue-600 text-lg  text-white  rounded-md px-4 py-2"
+              className="w-fit text-lg px-4 py-2"
               text="Start Free Trial  &nbsp;➜"
+              variant="primary"
             />
 
             <Button
               onClick={() => router.push("/login")}
-              className="w-fit border-input bg-white text-black font- hover:bg-gray-100 text-lg rounded-md px-4 py-2"
+              className="w-fit text-lg px-4 py-2"
+              variant="secondary"
               text="Sign In"
             />
           </div>
@@ -134,7 +144,7 @@ const HomeContainer = () => {
 
       {/* CTA */}
       <section className="py-8 lg:py-24 px-12 lg:px-20 xl:px-28">
-        <div className="rounded-2xl bg-ring p-12 text-center">
+        <div className="rounded-2xl [background-image:var(--ring-gradient)] p-12 text-center">
           <h2 className="text-3xl font-bold text-white">
             Ready to Get Started?
           </h2>
@@ -144,7 +154,8 @@ const HomeContainer = () => {
           </p>
           <Button
             onClick={() => router.push("/login")}
-            className="w-fit border-input bg-white text-black font-medium hover:bg-gray-100 text-sm rounded-md px-5 py-3"
+            className="w-fit font-medium text-sm px-5 py-3"
+            variant="secondary"
             text="Create Your Account &nbsp;➜"
           />
         </div>
