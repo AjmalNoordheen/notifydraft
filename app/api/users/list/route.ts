@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search") || "";
   const role = searchParams.get("role") || undefined;
   const adminId = auth.user.userId;
-  console.log(adminId, 'adminId');
   
   return userController.getUsersWithPagination(page, limit, search, role, adminId);
 }

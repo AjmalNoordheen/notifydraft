@@ -113,3 +113,32 @@ export const deleteDocument = async (id: string) => {
   await documentService.deleteDocument(id);
   return NextResponse.json({ message: "Document deleted successfully" });
 };
+
+export const createDocumentForUser = async (adminId: string, req: NextRequest) => {
+  try {
+    await connectDB();
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+    const documentType = formData.get("documentType") as string;
+    const expireDate = formData.get("expireDate") as string;
+    const userId = formData.get("userId") as string;
+
+    if (!file) return NextResponse.json({ error: "File is required" }, { status: 400 });
+    if (!documentType) return NextResponse.json({ error: "Document type is required" }, { status: 400 });
+    if (!userId) return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    if (!ALLOWED_TYPES.includes(file.type)) return NextResponse.json({ error: "File type not supported" }, { status: 400 });
+
+    const uploadResult: any = await uploadFileToCloudinary(file);
+    const document = await documentService.createDocument({
+      userId,
+      documentType,
+      expireDate: expireDate ? new Date(expireDate) : undefined,
+      filePath: uploadResult?.secure_url,
+      publicId: uploadResult?.public_id,
+    });
+
+    return NextResponse.json({ message: "Document created successfully", document }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to upload document" }, { status: 500 });
+  }
+};

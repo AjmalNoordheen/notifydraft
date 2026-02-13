@@ -16,16 +16,51 @@ export const getAllUsers = async () => {
 };
 
 export const getUserById = async (id: string) => {
-  return await User.findById(id).select("-password");
+  const result = await User.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(id) } },
+    {
+      $lookup: {
+        from: "documents",
+        localField: "_id",
+        foreignField: "userId",
+        as: "documents"
+      }
+    },
+    { $project: { password: 0 } }
+  ]);
+  return result[0] || null;
 };
 
 export const getUsersWithPagination = async (page: number, limit: number, search: string, role?: string, adminId?: string) => {
-  const query: any = search ? { $or: [{ name: new RegExp(search, 'i') }, { email: new RegExp(search, 'i') }, { phone: new RegExp(search, 'i') }] } : {};
-  if (role) query.userRole = role;
-  if (adminId) query.adminId = new mongoose.Types.ObjectId(adminId);
-  const users = await User.find(query).select("-password").skip((page - 1) * limit).limit(limit);
-  const total = await User.countDocuments(query);
-  return { users, total, page, totalPages: Math.ceil(total / limit) };
+  const matchQuery: any = {};
+  if (search) matchQuery.$or = [{ name: new RegExp(search, 'i') }, { email: new RegExp(search, 'i') }, { phone: new RegExp(search, 'i') }];
+  if (role) matchQuery.userRole = role;
+  if (adminId) matchQuery.adminId = new mongoose.Types.ObjectId(adminId);
+
+  const [result] = await User.aggregate([
+    { $match: matchQuery },
+    {
+      $facet: {
+        users: [
+          { $skip: (page - 1) * limit },
+          { $limit: limit },
+          {
+            $lookup: {
+              from: "documents",
+              localField: "_id",
+              foreignField: "userId",
+              as: "documents"
+            }
+          },
+          { $project: { password: 0 } }
+        ],
+        total: [{ $count: "count" }]
+      }
+    }
+  ]);
+
+  const total = result.total[0]?.count || 0;
+  return { users: result.users, total, page, totalPages: Math.ceil(total / limit) };
 };
 
 export const updateUserStatus = async (id: string, isActive: boolean) => {
