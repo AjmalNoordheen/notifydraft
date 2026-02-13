@@ -9,7 +9,7 @@ export function authenticateRequest(req: NextRequest) {
   }
 
   try {
-    const decoded = verifyToken(token);
+    const decoded: any = verifyToken(token);
     return { authenticated: true, user: decoded };
   } catch {
     return { authenticated: false, error: NextResponse.json({ error: "Invalid token" }, { status: 401 }) };

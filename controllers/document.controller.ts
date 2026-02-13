@@ -1,32 +1,49 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import * as documentService from "@/services/document.service";
-import { uploadDocument, deleteFile } from "@/utils/cloudinary";
+import { uploadFileToCloudinary, deleteFileFromCloudinary } from "@/lib/cloudinary";
+
+const ALLOWED_TYPES = [
+  "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml",
+  "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/plain", "text/csv",
+  "application/zip", "application/x-rar-compressed", "application/x-7z-compressed",
+  "video/mp4", "video/quicktime", "audio/mpeg", "audio/wav"
+];
 
 export const createDocument = async (userId: string, req: NextRequest) => {
-  await connectDB();
-  const formData = await req.formData();
-  const file = formData.get("file") as File;
-  const documentType = formData.get("documentType") as string;
-  const expireDate = formData.get("expireDate") as string;
+  try {
+    await connectDB();
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+    const documentType = formData.get("documentType") as string;
+    const expireDate = formData.get("expireDate") as string;
 
-  if (!file) {
-    return NextResponse.json({ error: "File is required" }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: "File is required" }, { status: 400 });
+    }
+    if (!documentType) {
+      return NextResponse.json({ error: "Document type is required" }, { status: 400 });
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: "File type not supported" }, { status: 400 });
+    }
+
+    const uploadResult: any = await uploadFileToCloudinary(file);
+    const document = await documentService.createDocument({
+      userId,
+      documentType,
+      expireDate: expireDate ? new Date(expireDate) : undefined,
+      filePath: uploadResult?.secure_url,
+      publicId: uploadResult?.public_id,
+    });
+
+    return NextResponse.json({ message: "Document created successfully", document }, { status: 201 });
+  } catch (error: any) {
+    console.error("Document creation error:", error);
+    return NextResponse.json({ error: error.message || "Failed to upload document" }, { status: 500 });
   }
-  if (!documentType) {
-    return NextResponse.json({ error: "Document type is required" }, { status: 400 });
-  }
-
-  const uploadResult: any = await uploadDocument(file);
-  const document = await documentService.createDocument({
-    userId,
-    documentType,
-    expireDate: expireDate ? new Date(expireDate) : undefined,
-    filePath: uploadResult.url,
-    publicId: uploadResult.public_id,
-  });
-
-  return NextResponse.json({ message: "Document created successfully", document }, { status: 201 });
 };
 
 export const getAllDocuments = async (req: NextRequest) => {
@@ -52,15 +69,37 @@ export const getDocumentById = async (id: string) => {
 export const updateDocument = async (id: string, req: NextRequest) => {
   await connectDB();
   try {
-    const data = await req.json();
-    console.log(data,'ppppp')
-    const document = await documentService.updateDocument(id, data);
+    const document = await documentService.getDocumentById(id);
     if (!document) {
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
-    return NextResponse.json({ message: "Document updated successfully", document });
-  } catch (error) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+    const documentType = formData.get("documentType") as string;
+    const expireDate = formData.get("expireDate") as string;
+    const isActive = formData.get("isActive") as string;
+
+    const updateData: any = {};
+    if (documentType) updateData.documentType = documentType;
+    if (expireDate) updateData.expireDate = new Date(expireDate);
+    if (isActive !== null) updateData.isActive = isActive === "true";
+
+    if (file) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return NextResponse.json({ error: "File type not supported" }, { status: 400 });
+      }
+      await deleteFileFromCloudinary(document?.publicId);
+      const uploadResult: any = await uploadFileToCloudinary(file);
+      updateData.filePath = uploadResult.secure_url;
+      updateData.publicId = uploadResult.public_id;
+    }
+
+    const updatedDocument = await documentService.updateDocument(id, updateData);
+    return NextResponse.json({ message: "Document updated successfully", document: updatedDocument });
+  } catch (error: any) {
+    console.error("Update document error:", error);
+    return NextResponse.json({ error: error?.message || "Failed to update document" }, { status: 500 });
   }
 };
 
@@ -70,7 +109,7 @@ export const deleteDocument = async (id: string) => {
   if (!document) {
     return NextResponse.json({ error: "Document not found" }, { status: 404 });
   }
-  await deleteFile(document.publicId);
+  await deleteFileFromCloudinary(document.publicId);
   await documentService.deleteDocument(id);
   return NextResponse.json({ message: "Document deleted successfully" });
 };

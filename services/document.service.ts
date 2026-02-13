@@ -1,4 +1,5 @@
 import { Document } from "@/models/Document";
+import "@/models/User";
 
 export const createDocument = async (data: any) => {
   return await Document.create(data);
@@ -11,7 +12,7 @@ export const getAllDocuments = async (page = 1, limit = 10, search = "", userId?
   if (search) query.$or = [{ filePath: { $regex: search, $options: "i" } }];
   
   const [data, total] = await Promise.all([
-    Document.find(query).populate("userId").skip(skip).limit(limit).sort({ createdAt: -1 }),
+    Document.find(query).populate("userId", '-password').skip(skip).limit(limit).sort({ createdAt: -1 }),
     Document.countDocuments(query)
   ]);
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
