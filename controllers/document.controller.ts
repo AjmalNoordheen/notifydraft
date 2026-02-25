@@ -19,6 +19,10 @@ export const createDocument = async (userId: string, req: NextRequest) => {
     const file = formData.get("file") as File;
     const documentType = formData.get("documentType") as string;
     const expireDate = formData.get("expireDate") as string;
+    const customerName = formData.get("customerName") as string;
+    const email = formData.get("email") as string;
+    const issueDate = formData.get("issueDate") as string;
+    const notes = formData.get("notes") as string;
 
     if (!file) {
       return NextResponse.json({ error: "File is required" }, { status: 400 });
@@ -37,6 +41,11 @@ export const createDocument = async (userId: string, req: NextRequest) => {
       expireDate: expireDate ? new Date(expireDate) : undefined,
       filePath: uploadResult?.secure_url,
       publicId: uploadResult?.public_id,
+      customerName,
+      email,
+      issueDate: issueDate ? new Date(issueDate) : undefined,
+      notes,
+    
     });
 
     return NextResponse.json({ message: "Document created successfully", document }, { status: 201 });
@@ -79,11 +88,19 @@ export const updateDocument = async (id: string, req: NextRequest) => {
     const documentType = formData.get("documentType") as string;
     const expireDate = formData.get("expireDate") as string;
     const isActive = formData.get("isActive") as string;
+    const customerName = formData.get("customerName") as string;
+    const email = formData.get("email") as string;
+    const issueDate = formData.get("issueDate") as string;
+    const notes = formData.get("notes") as string;
 
     const updateData: any = {};
     if (documentType) updateData.documentType = documentType;
     if (expireDate) updateData.expireDate = new Date(expireDate);
     if (isActive !== null) updateData.isActive = isActive === "true";
+    if (customerName) updateData.customerName = customerName;
+    if (email) updateData.email = email;
+    if (issueDate) updateData.issueDate = new Date(issueDate);
+    if (notes) updateData.notes = notes;
 
     if (file) {
       if (!ALLOWED_TYPES.includes(file.type)) {

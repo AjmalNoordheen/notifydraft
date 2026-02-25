@@ -2,10 +2,29 @@ import mongoose, { Schema, models } from "mongoose";
 
 const DocumentSchema = new Schema(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true
+    userId:{
+        required: true,
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    },
+    customerName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    issueDate: {
+      type: Date,
+      required: true,
+    },
+    notes: {
+      type: String,
+      default: "",
     },
     documentType: {
       type: String,
@@ -31,3 +50,6 @@ const DocumentSchema = new Schema(
 );
 
 export const Document = models.Document || mongoose.model("Document", DocumentSchema);
+
+
+
